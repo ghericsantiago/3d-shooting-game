@@ -18,7 +18,7 @@ public class BulletController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("Enemy") || other.gameObject.CompareTag ("Wall")) {
 
 			if (other.gameObject.CompareTag ("Enemy")) {
-				other.gameObject.GetComponent<Rigidbody> ().AddForce (-other.transform.forward * 700f);
+				other.gameObject.GetComponent<Rigidbody> ().AddForce (-other.transform.forward * 100f);
 				other.gameObject.GetComponent<EnemyController> ().takeDamage (Random.Range(30,50));
 			}
 

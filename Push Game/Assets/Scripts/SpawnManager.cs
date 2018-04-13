@@ -6,6 +6,7 @@ public class SpawnManager : MonoBehaviour {
 
 	public float timeBeforeSpawn;
 	public GameObject player;
+	public GameObject playerBase;
 	public GameObject[] enemy;
 	protected GameManager gm;
 
@@ -34,6 +35,7 @@ public class SpawnManager : MonoBehaviour {
 		for (int i = 0; i < level; i++) {
 			GameObject enemyObj = Instantiate (enemy[0], transform.position + new Vector3(0,0, Random.Range(-25, 25)), Quaternion.identity) as GameObject;
 			enemyObj.GetComponent<EnemyController> ().target = player.transform;
+			enemyObj.GetComponent<EnemyController> ().mainTarget = playerBase.transform;
 		}
 		level++;
 	}

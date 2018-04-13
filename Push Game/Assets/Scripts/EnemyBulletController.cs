@@ -17,7 +17,12 @@ public class EnemyBulletController : MonoBehaviour {
 	void OnCollisionEnter(Collision other){
 
 		if (other.gameObject.CompareTag ("Player")) {
-			other.gameObject.GetComponent<Rigidbody> ().AddForce (-other.transform.forward * 700f);
+			other.gameObject.GetComponent<Rigidbody> ().AddForce (-other.transform.forward * 100f);
+			other.gameObject.GetComponent<PlayerController> ().takeDamage (damage);
+		}
+
+		if (other.gameObject.CompareTag ("Base")) {
+			other.gameObject.GetComponent<BaseController> ().takeDamage (damage);
 		}
 
 		Destroy (gameObject);

@@ -7,7 +7,9 @@ public class Weapon{
 	public GameObject prefabs;
 	public string weaponName;
 	public float rateOfFire;
+	public int multiplier;
 	public GameObject bullets;
+	public bool isMelee;
 }
 
 public class ItemController : MonoBehaviour {

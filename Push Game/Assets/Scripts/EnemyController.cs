@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour {
 
@@ -9,11 +10,14 @@ public class EnemyController : MonoBehaviour {
 	public Rigidbody rb;
 	[HideInInspector]
 	public ItemController weaponController;
-	public float health = 100;
-
+	public float maxHealth = 100;
+	public float health;
 
 	public NavMeshAgent agent;
 	public Transform target;
+	public Transform mainTarget;
+	protected Transform currentTarget;
+
 	public Transform turret;
 	public float rotateSpeed;
 	public float rateOfFire;
@@ -21,6 +25,8 @@ public class EnemyController : MonoBehaviour {
 	public float maxRange;
 	public float FireRange;
 	public float mixRange;
+
+	public Image healthbar;
 
 	public GameObject firePoint;
 	private int currentWeaponIndex;
@@ -32,7 +38,7 @@ public class EnemyController : MonoBehaviour {
 	protected GameManager gm;
 
 	void Start () {
-		Cursor.lockState = CursorLockMode.Locked;
+		health = maxHealth;
 		agent = GetComponent<NavMeshAgent> ();
 		rb = GetComponent<Rigidbody> ();
 		weaponController = GetComponent<ItemController> ();
@@ -40,6 +46,7 @@ public class EnemyController : MonoBehaviour {
 		currentWeapon = weaponController.weapons [currentWeaponIndex];
 		currentWeaponObject = (GameObject) Instantiate (currentWeapon.prefabs, turret.position, turret.rotation, turret);
 		gm = FindObjectOfType<GameManager> ();
+		currentTarget = target;
 	}
 	
 	// Update is called once per frame
@@ -57,41 +64,49 @@ public class EnemyController : MonoBehaviour {
 		if (gm.gameEnded)
 			return;
 		RaycastHit hit;
-		if (Physics.Raycast (target.position, transform.forward, out hit)) {
 
-			if (hit.transform.CompareTag ("Player")) {
+		if (Physics.Raycast (transform.position,  transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity)) {
+
+			if (hit.transform.CompareTag ("Player") || hit.transform.CompareTag ("Base")) {
 				targetInSight = true;
 			} else {
 				targetInSight = false;
 			}
 		}
 
-		if (targetInSight) {
+		if (targetInSight && GetDistance() <= FireRange) {
 			Fire ();
 		}
 
-		if (GetDistance () <= maxRange) {
-
-			//Move ();
-			if (GetDistance () <= FireRange) {
-				//Fire ();
-			}
-		}
-
+		updateTarget ();
 
 	}
 
 	void LateUpdate(){
 
-		Debug.DrawRay (gameObject.transform.position, target.position , Color.red);
+		Debug.DrawRay (gameObject.transform.position, currentTarget.position , Color.red);
+		Debug.DrawLine (transform.position, currentTarget.transform.position, Color.green);
 	}
 
 	public float GetDistance(){
-		return Vector3.Distance (gameObject.transform.position, target.forward);
+		return Vector3.Distance (transform.position, currentTarget.position);
+	}
+
+	void updateTarget(){
+
+		float dis1 = Vector3.Distance (transform.position, target.position);
+		float dis2 = Vector3.Distance (transform.position, mainTarget.position);
+
+		if (dis1 > maxRange || dis2 <= maxRange) {
+			currentTarget = mainTarget;
+		} else {
+			currentTarget = target;
+		}
+	
 	}
 
 	void Move(){
-		agent.SetDestination(target.position);
+		agent.SetDestination(currentTarget.position);
 	}
 
 	void Fire(){
@@ -107,12 +122,15 @@ public class EnemyController : MonoBehaviour {
 	}
 
 	void LookAtTarget(){
-		transform.LookAt (target.transform);
+		transform.LookAt (currentTarget.transform);
 	}
 
 	public void takeDamage(float damageToTake){
 
 		health -= damageToTake;
+
+		healthbar.fillAmount = health / maxHealth;
+
 		if (health <= 0) {
 			Destroy (gameObject);
 		}
